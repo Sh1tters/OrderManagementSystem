@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.friertech.ordersystemproject.LoginScreenController">
+    <children>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="750.0" prefWidth="750.0">
+            <children>
+                <PasswordField fx:id="PASSWORD" layoutX="301.0" layoutY="375.0" promptText="PASSWORD" />
+                <TextField fx:id="ID" layoutX="301.0" layoutY="323.0" promptText="ID" />
+                <Button fx:id="LoginButton" defaultButton="true" layoutX="335.0" layoutY="472.0" mnemonicParsing="false" onAction="#onLoginButtonClick" prefHeight="34.0" prefWidth="80.0" text="LOGIN" />
+                <Text fx:id="LoginError" fill="RED" layoutX="297.0" layoutY="442.0" strokeType="OUTSIDE" strokeWidth="0.0" text="(!) Invalid credentials (!)" textAlignment="CENTER" visible="false" wrappingWidth="160.9830722808838" />
+            <ImageView fitHeight="250.0" fitWidth="250.0" layoutX="252.0" layoutY="149.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@logo.png" />
+               </image>
+            </ImageView>
+            </children></AnchorPane>
+    </children>
+</VBox>
