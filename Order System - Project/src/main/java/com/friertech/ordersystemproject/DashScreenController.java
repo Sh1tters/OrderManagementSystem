@@ -1,5 +1,6 @@
 package com.friertech.ordersystemproject;
 
+import com.google.gson.Gson;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
@@ -7,11 +8,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyEvent;
 import org.bson.Document;
 import org.json.JSONObject;
 
@@ -20,6 +19,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static com.mongodb.client.model.Filters.eq;
 import static java.lang.System.out;
 
 public class DashScreenController implements Initializable {
@@ -37,6 +37,8 @@ public class DashScreenController implements Initializable {
     private MenuItem ignoredmenu;
     @FXML
     private MenuItem archivedmenu;
+    @FXML
+    private TextField searchField;
 
     public TableView<OrderModel> table;
 
@@ -78,12 +80,23 @@ public class DashScreenController implements Initializable {
 
     }
 
-
+    @FXML
+    public void onKeyTyped(KeyEvent event) {
+        updateTableById(searchField.getText().toString());
+    }
 
     @FXML
     public void onComboboxClick() throws ParseException {
         // Update new filter method on tableview
         updateTable();
+    }
+
+    void updateTableById(String id){
+        // delete all tableview items
+        for(int i = 0; i < table.getItems().size(); i++){
+            table.getItems().clear();
+        }
+        getAllSearchOrders(dsh.collection, id);
     }
 
     void updateTable() throws ParseException {
@@ -114,10 +127,10 @@ public class DashScreenController implements Initializable {
             String status = table.getItems().get(i).getStatus();
 
             // check each status
-            if(status == "PENDING") pending++;
-            if(status == "CONFIRMED") confirmed++;
-            if(status == "IGNORED") ignored++;
-            if(status == "ARCHIVED") archived++;
+            if(Objects.equals(status, "PENDING")) pending++;
+            if(Objects.equals(status, "CONFIRMED")) confirmed++;
+            if(Objects.equals(status, "IGNORED")) ignored++;
+            if(Objects.equals(status, "ARCHIVED")) archived++;
         }
         pendingmenu.setText("Pending ("+pending+")");
         confirmedmenu.setText("Confirmed ("+confirmed+")");
@@ -126,7 +139,7 @@ public class DashScreenController implements Initializable {
     }
 
     // Method to fetch all documents from the mongo collection.
-    public void getAllNewestOrders(MongoCollection<Document> col) {
+    public void getAllOldestOrders(MongoCollection<Document> col) {
 
         // Performing a read operation on the collection.
         FindIterable<Document> fi = col.find();
@@ -141,8 +154,7 @@ public class DashScreenController implements Initializable {
     }
 
     // Method to fetch all documents from the mongo collection.
-    public void getAllOldestOrders(MongoCollection<Document> col) {
-
+    public void getAllNewestOrders(MongoCollection<Document> col) {
         // Performing a read operation on the collection.
         FindIterable<Document> fi = col.find();
         MongoCursor<Document> cursor = fi.iterator();
@@ -152,6 +164,25 @@ public class DashScreenController implements Initializable {
                 OrderModel newOrder = new OrderModel(obj.getString("name"), "BK-"+obj.getString("id"), obj.getString("date"), obj.getString("mail"), obj.getString("status"), obj.getString("description"));
                 table.getItems().add(newOrder);
 
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    // Method to fetch all documents with a search id from the mongo collection.
+    public void getAllSearchOrders(MongoCollection<Document> col, String id) {
+        // Performing a read operation on the collection.
+        FindIterable<Document> fi = col.find();
+        MongoCursor<Document> cursor = fi.iterator();
+        try {
+            while(cursor.hasNext()) {
+                JSONObject obj = new JSONObject(cursor.next().toJson());
+                String bk = "BK-"+obj.getString("id");
+                if(id.contains(obj.getString("id")) || bk.startsWith(id)){
+                    OrderModel newOrder = new OrderModel(obj.getString("name"), "BK-"+obj.getString("id"), obj.getString("date"), obj.getString("mail"), obj.getString("status"), obj.getString("description"));
+                    table.getItems().add(newOrder);
+                }
             }
         } finally {
             cursor.close();
