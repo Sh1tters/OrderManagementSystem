@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
@@ -17,42 +18,47 @@
 <VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.friertech.ordersystemproject.DashScreenController">
     <children>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="750.0" prefWidth="1000.0">
-         <children>
-            <TableView id="table" fx:id="table" layoutX="28.0" layoutY="158.0" prefHeight="494.0" prefWidth="944.0">
-              <columns>
-                <TableColumn fx:id="id" editable="false" prefWidth="105.0" sortable="false" text="Order #" />
-                <TableColumn id="date" fx:id="date" editable="false" prefWidth="105.0" sortable="false" text="Date" />
-                  <TableColumn id="name" fx:id="name" editable="false" prefWidth="105.0" sortable="false" text="Customer Name" />
-                  <TableColumn id="mail" fx:id="mail" editable="false" prefWidth="105.0" sortable="false" text="Customer Mail" />
-                  <TableColumn id="status" fx:id="status" editable="false" prefWidth="105.0" sortable="false" text="Status" />
-                  <TableColumn id="status" fx:id="description" editable="false" prefWidth="418.0" sortable="false" text="Order description" />
-              </columns>
-            </TableView>
-            <Text fill="#545353" layoutX="772.0" layoutY="138.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Filter:" wrappingWidth="39.787109375" />
-            <ComboBox fx:id="combobox" layoutX="819.0" layoutY="121.0" onAction="#onComboboxClick" prefWidth="150.0" promptText="Sort by newest" />
-            <ImageView fitHeight="120.0" fitWidth="267.0" layoutX="372.0" layoutY="26.0" pickOnBounds="true" preserveRatio="true">
-               <image>
-                  <Image url="@logo.png" />
-               </image>
-            </ImageView>
-            <MenuBar layoutX="2.0" layoutY="1.0" prefHeight="25.0" prefWidth="1000.0">
-              <menus>
-                <Menu mnemonicParsing="false" text="Dashboard" />
-                  <Menu mnemonicParsing="false" text="Orders">
+            <children>
+                <TableView id="table" fx:id="table" layoutX="28.0" layoutY="164.0" prefHeight="494.0" prefWidth="944.0">
+                    <columns>
+                        <TableColumn fx:id="id" editable="false" prefWidth="105.0" sortable="false" text="Order #" />
+                        <TableColumn id="date" fx:id="date" editable="false" prefWidth="105.0" sortable="false" text="Date" />
+                        <TableColumn id="name" fx:id="name" editable="false" prefWidth="105.0" sortable="false" text="Customer Name" />
+                        <TableColumn id="mail" fx:id="mail" editable="false" prefWidth="105.0" sortable="false" text="Customer Mail" />
+                        <TableColumn id="status" fx:id="status" editable="false" prefWidth="105.0" sortable="false" text="Status" />
+                        <TableColumn id="status" fx:id="description" editable="false" prefWidth="418.0" sortable="false" text="Order description" />
+                    </columns>
+                </TableView>
+                <Text fill="#545353" layoutX="772.0" layoutY="138.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Filter:" wrappingWidth="39.787109375" />
+                <ComboBox fx:id="combobox" layoutX="819.0" layoutY="121.0" onAction="#onComboboxClick" prefWidth="150.0" promptText="Sort by newest" />
+                <ImageView fitHeight="120.0" fitWidth="267.0" layoutX="372.0" layoutY="26.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@logo.png" />
+                    </image>
+                </ImageView>
+                <MenuBar layoutX="2.0" layoutY="1.0" prefHeight="25.0" prefWidth="1000.0">
+                    <menus>
+                        <Menu mnemonicParsing="false" text="Dashboard" />
+                        <Menu mnemonicParsing="false" text="Orders">
+                            <items>
+                                <MenuItem fx:id="pendingmenu" mnemonicParsing="false" onAction="#onPendingClick" text="Pending (0)" />
+                                <MenuItem fx:id="confirmedmenu" mnemonicParsing="false" onAction="#onConfirmedClick" text="Confirmed (0)" />
+                                <MenuItem fx:id="ignoredmenu" mnemonicParsing="false" onAction="#onIgnoredClick" text="Ignored (0)" />
+                                <MenuItem fx:id="archivedmenu" mnemonicParsing="false" onAction="#onArchivedClick" text="Archived (0)" />
+                            </items>
+                        </Menu>
+                        <Menu mnemonicParsing="false" text="Stats" />
+                  <Menu mnemonicParsing="false" text="Settings">
                      <items>
-                        <MenuItem fx:id="pendingmenu" mnemonicParsing="false" text="Pending (0)" />
-                        <MenuItem fx:id="confirmedmenu" mnemonicParsing="false" text="Confirmed (0)" />
-                        <MenuItem fx:id="ignoredmenu" mnemonicParsing="false" text="Ignored (0)" />
-                        <MenuItem fx:id="archivedmenu" mnemonicParsing="false" text="Archived (0)" />
+                        <CheckMenuItem fx:id="colordisplayer" mnemonicParsing="false" onAction="#onColorDisplayerChange" selected="true" text="Color Displayer" />
+                        <CheckMenuItem mnemonicParsing="false" text="Dark Mode" />
                      </items>
                   </Menu>
-                <Menu mnemonicParsing="false" text="Stats" />
-              </menus>
-            </MenuBar>
-            <Button disable="true" layoutX="850.0" layoutY="671.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="119.0" text="CONFIRM ORDER" />
-            <Button disable="true" layoutX="725.0" layoutY="671.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="119.0" text="CANCEL ORDER" />
-            <Button disable="true" layoutX="600.0" layoutY="671.0" mnemonicParsing="false" prefHeight="34.0" prefWidth="119.0" text="ARCHIVE ORDER" />
-            <TextField fx:id="searchField" accessibleText="d" layoutX="28.0" layoutY="121.0" onKeyTyped="#onKeyTyped" promptText="BK-" />
-         </children></AnchorPane>
+                    </menus>
+                </MenuBar>
+                <TextField fx:id="searchField" accessibleText="d" layoutX="131.0" layoutY="121.0" onKeyTyped="#onKeyTyped" promptText="BK-" />
+            <Text layoutX="28.0" layoutY="138.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Order ID searcher:" />
+            <Button cache="true" layoutX="28.0" layoutY="667.0" text="VIEW ORDER" />
+            </children></AnchorPane>
     </children>
 </VBox>

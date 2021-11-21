@@ -1,22 +1,20 @@
 package com.friertech.ordersystemproject;
 
-import com.google.gson.Gson;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import org.bson.Document;
 import org.json.JSONObject;
 
 import java.net.URL;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static com.mongodb.client.model.Filters.eq;
@@ -39,6 +37,8 @@ public class DashScreenController implements Initializable {
     private MenuItem archivedmenu;
     @FXML
     private TextField searchField;
+    @FXML
+    private CheckMenuItem colordisplayer;
 
     public TableView<OrderModel> table;
 
@@ -55,7 +55,11 @@ public class DashScreenController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         combobox.getItems().addAll(
                 "Sort by newest",
-                "Sort by oldest"
+                "Sort by oldest",
+                "Sort by pending orders",
+                "Sort by confirmed orders",
+                "Sort by archived orders",
+                "Sort by ignored orders"
         );
 
         // Update table
@@ -76,7 +80,35 @@ public class DashScreenController implements Initializable {
         // Update menu item names
         updateMenuItems();
 
+        table.setOnMouseClicked((
+                MouseEvent event) -> {
+            if(event.getButton().equals(MouseButton.PRIMARY)){
+                out.println(table.getSelectionModel().getSelectedItem().getName());
+            }
+        });
+        table.setRowFactory(tv -> new TableRow<OrderModel>() {
+            @Override
+            public void updateItem(OrderModel item, boolean empty) {
+                super.updateItem(item, empty) ;
+                if (item == null) {
+                    setStyle("");
+                } else if (item.getStatus().equals("CONFIRMED")) {
+                    setStyle("-fx-background-color: green;");
+                } else if (item.getStatus().equals("IGNORED")){
+                    setStyle("-fx-background-color: tomato;");
+                } else if(item.getStatus().equals("ARCHIVED")){
+                    setStyle("-fx-background-color: grey;");
+                } else if(item.getStatus().equals("PENDING")){
+                    setStyle("-fx-background-color: lightgrey;");
+                } else {
+                    setStyle("");
+                }
+            }
+        });
 
+    }
+
+    @FXML void onColorDisplayerChange(){
 
     }
 
@@ -91,6 +123,27 @@ public class DashScreenController implements Initializable {
         updateTable();
     }
 
+    @FXML
+    public void onPendingClick() throws ParseException {
+        combobox.setValue("Sort by pending orders");
+        updateTable();
+    }
+    @FXML
+    public void onConfirmedClick() throws ParseException {
+        combobox.setValue("Sort by confirmed orders");
+        updateTable();
+    }
+    @FXML
+    public void onIgnoredClick() throws ParseException {
+        combobox.setValue("Sort by ignored orders");
+        updateTable();
+    }
+    @FXML
+    public void onArchivedClick() throws ParseException {
+        combobox.setValue("Sort by archived orders");
+        updateTable();
+    }
+
     void updateTableById(String id){
         // delete all tableview items
         for(int i = 0; i < table.getItems().size(); i++){
@@ -102,23 +155,29 @@ public class DashScreenController implements Initializable {
     void updateTable() throws ParseException {
         filter = combobox.getSelectionModel().getSelectedItem();
         if(filter == null) filter = "Sort by newest";
-
-
+        // delete all tableview items
+        for(int i = 0; i < table.getItems().size(); i++){
+            table.getItems().clear();
+        }
         if(filter.equals("Sort by newest")){
-            // delete all tableview items
-            for(int i = 0; i < table.getItems().size(); i++){
-                table.getItems().clear();
-            }
             // Fetch documents from mongodb
             getAllNewestOrders(dsh.collection);
 
         } else if(filter.equals("Sort by oldest")){
-            // delete all tableview items
-            for(int i = 0; i < table.getItems().size(); i++){
-                table.getItems().clear();
-            }
             // Fetch documents from mongodb
             getAllOldestOrders(dsh.collection);
+        } else if(filter.equals("Sort by pending orders")){
+            // Fetch documents from mongodb
+            getAllPendingOrders(dsh.collection);
+        }else if(filter.equals("Sort by confirmed orders")){
+            // Fetch documents from mongodb
+            getAllConfirmedOrders(dsh.collection);
+        }else if(filter.equals("Sort by archived orders")){
+            // Fetch documents from mongodb
+            getAllArchivedOrders(dsh.collection);
+        }else if(filter.equals("Sort by ignored orders")){
+            // Fetch documents from mongodb
+            getAllIgnoredOrders(dsh.collection);
         }
     }
 
@@ -139,17 +198,103 @@ public class DashScreenController implements Initializable {
     }
 
     // Method to fetch all documents from the mongo collection.
+    public void getAllConfirmedOrders(MongoCollection<Document> col) {
+        // Performing a read operation on the collection.
+        FindIterable<Document> fi = col.find();
+        MongoCursor<Document> cursor = fi.iterator();
+        try {
+            while(cursor.hasNext()) {
+                JSONObject obj = new JSONObject(cursor.next().toJson());
+                if(obj.getString("status").equals("CONFIRMED")){
+                    OrderModel newOrder = new OrderModel(obj.getString("name"), "BK-"+obj.getString("id"), obj.getString("date"), obj.getString("mail"), obj.getString("status"), obj.getString("description"));
+                    table.getItems().add(newOrder);
+                }
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    // Method to fetch all documents from the mongo collection.
+    public void getAllIgnoredOrders(MongoCollection<Document> col) {
+        // Performing a read operation on the collection.
+        FindIterable<Document> fi = col.find();
+        MongoCursor<Document> cursor = fi.iterator();
+        try {
+            while(cursor.hasNext()) {
+                JSONObject obj = new JSONObject(cursor.next().toJson());
+                if(obj.getString("status").equals("IGNORED")){
+                    OrderModel newOrder = new OrderModel(obj.getString("name"), "BK-"+obj.getString("id"), obj.getString("date"), obj.getString("mail"), obj.getString("status"), obj.getString("description"));
+                    table.getItems().add(newOrder);
+                }
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    // Method to fetch all documents from the mongo collection.
+    public void getAllArchivedOrders(MongoCollection<Document> col) {
+        // Performing a read operation on the collection.
+        FindIterable<Document> fi = col.find();
+        MongoCursor<Document> cursor = fi.iterator();
+        try {
+            while(cursor.hasNext()) {
+                JSONObject obj = new JSONObject(cursor.next().toJson());
+                if(obj.getString("status").equals("ARCHIVED")){
+                    OrderModel newOrder = new OrderModel(obj.getString("name"), "BK-"+obj.getString("id"), obj.getString("date"), obj.getString("mail"), obj.getString("status"), obj.getString("description"));
+                    table.getItems().add(newOrder);
+                }
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    // Method to fetch all documents from the mongo collection.
+    public void getAllPendingOrders(MongoCollection<Document> col) {
+        // Performing a read operation on the collection.
+        FindIterable<Document> fi = col.find();
+        MongoCursor<Document> cursor = fi.iterator();
+        try {
+            while(cursor.hasNext()) {
+                JSONObject obj = new JSONObject(cursor.next().toJson());
+                if(obj.getString("status").equals("PENDING")){
+                    OrderModel newOrder = new OrderModel(obj.getString("name"), "BK-"+obj.getString("id"), obj.getString("date"), obj.getString("mail"), obj.getString("status"), obj.getString("description"));
+                    table.getItems().add(newOrder);
+                }
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+    // Method to fetch all documents from the mongo collection.
     public void getAllOldestOrders(MongoCollection<Document> col) {
+        // In order to reverse the iterate, we will append each json to an array list string and there for reverse that list string and take each json out from there
+
+        // For ArrayList
+        List<OrderModel> list = new ArrayList<>();
 
         // Performing a read operation on the collection.
         FindIterable<Document> fi = col.find();
         MongoCursor<Document> cursor = fi.iterator();
         try {
             while(cursor.hasNext()) {
-                out.println(cursor.next().toJson());
+                JSONObject obj = new JSONObject(cursor.next().toJson());
+                OrderModel newOrder = new OrderModel(obj.getString("name"), "BK-"+obj.getString("id"), obj.getString("date"), obj.getString("mail"), obj.getString("status"), obj.getString("description"));
+
+                // adding the elements
+                list.add(newOrder);
             }
         } finally {
             cursor.close();
+        }
+        // print list in Reverse using for loop
+        for (int i = list.size() - 1; i >= 0; i--)
+        {
+            // access elements by their index (position)
+            table.getItems().add(list.get(i));
         }
     }
 
@@ -168,6 +313,7 @@ public class DashScreenController implements Initializable {
         } finally {
             cursor.close();
         }
+
     }
 
     // Method to fetch all documents with a search id from the mongo collection.
