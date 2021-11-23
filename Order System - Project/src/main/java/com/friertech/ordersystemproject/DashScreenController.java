@@ -6,7 +6,6 @@ import com.mongodb.client.MongoCursor;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
@@ -14,10 +13,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import javafx.stage.Modality;
-import javafx.stage.Popup;
 import javafx.stage.Stage;
 import org.bson.Document;
 import org.json.JSONObject;
@@ -28,13 +24,11 @@ import java.text.ParseException;
 import java.util.*;
 
 import static com.mongodb.client.model.Filters.eq;
-import static java.lang.System.out;
 // File Name SendHTMLEmail.java
 
 
 public class DashScreenController implements Initializable {
     DashScreenHandler dsh = new DashScreenHandler();
-    private String namex;
     int confirmed = 0, ignored = 0, pending = 0, archived = 0;
     String filter = "";
 
@@ -56,9 +50,26 @@ public class DashScreenController implements Initializable {
     private CheckMenuItem darkmode;
     @FXML
     private Button vieworder;
+    @FXML
+    private Button okButton;
+    @FXML
+    private Button replyButton;
+    @FXML
+    private RadioButton PDF;
+    @FXML
+    private RadioButton Print;
+    @FXML
+    private Button printButton;
+    @FXML
+    private Text availableText;
+    @FXML
+    private TableView deviceList;
+
+
+    public TableView<DevicesModel> deviceTable;
+    public TableColumn<DevicesModel, Object> printers;
 
     public TableView<OrderModel> table;
-
     public TableColumn<OrderModel, Object> id;
     public TableColumn<OrderModel, Object> date;
     public TableColumn<OrderModel, Object> name;
@@ -94,6 +105,7 @@ public class DashScreenController implements Initializable {
             mail.setCellValueFactory(new PropertyValueFactory<>("mail"));
             status.setCellValueFactory(new PropertyValueFactory<>("status"));
             description.setCellValueFactory(new PropertyValueFactory<>("description"));
+
 
             // Update menu item names
             updateMenuItems();
@@ -132,10 +144,15 @@ public class DashScreenController implements Initializable {
 
     }
 
+    /** If view order button has been clicked */
     @FXML void onViewOrderClick() throws IOException {
         Stage popupwindow= new Stage();
         Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("OrderPopupScreen.fxml")));
         getSelectedItemData(dsh.collection, table.getSelectionModel().getSelectedItem().getName(), root);
+        //update our printer tableview
+        printers.setCellValueFactory(new PropertyValueFactory<>("printers"));
+        updatePrinterTable();
+        updateDescriptionField(root);
         Scene popup = new Scene(root);
         popupwindow.setResizable(false);
         popupwindow.setTitle("Order Information Window (" + table.getSelectionModel().getSelectedItem().getId() + ")");
@@ -144,7 +161,7 @@ public class DashScreenController implements Initializable {
 
     }
 
-    // Method to fetch all documents from the mongo collection.
+    /** Gets the current selected item data and sets the Order Information text to the right data */
     public void getSelectedItemData(MongoCollection<Document> col, String user, Parent root) {
         FindIterable<Document> fi = col.find();
         MongoCursor<Document> cursor = fi.iterator();
@@ -171,7 +188,7 @@ public class DashScreenController implements Initializable {
                     nameText.setText(obj.getString("name"));
 
                     Label orderText = (Label) root.lookup("#orderText");
-                    orderText.setText("Order #: " + obj.getString("id"));
+                    orderText.setText("Order #: BK-" + obj.getString("id"));
 
                     Label statusText = (Label) root.lookup("#statusText");
                     statusText.setText("Status: " + obj.getString("status"));
@@ -185,6 +202,7 @@ public class DashScreenController implements Initializable {
         }
     }
 
+    /** Changes to darkmode/lightmode */
     @FXML void onDarkModeChange(){
         //darkmode
         Scene scene = (Scene) table.getScene();
@@ -195,6 +213,7 @@ public class DashScreenController implements Initializable {
         }
     }
 
+    /** Changes the tableview row colors */
     @FXML void onColorDisplayerChange(){
         table.setRowFactory(tv -> new TableRow<OrderModel>() {
             @Override
@@ -221,38 +240,45 @@ public class DashScreenController implements Initializable {
         });
     }
 
+    /** If user typed in search bar */
     @FXML
     public void onKeyTyped(KeyEvent event) {
         updateTableById(searchField.getText().toString());
     }
 
+    /** If combonox has been clicked */
     @FXML
     public void onComboboxClick() throws ParseException {
         // Update new filter method on tableview
         updateTable();
     }
 
+    /** If menu pending button has been clicked */
     @FXML
     public void onPendingClick() throws ParseException {
         combobox.setValue("Sort by pending orders");
         updateTable();
     }
+    /** If menu confirmed button has been clicked */
     @FXML
     public void onConfirmedClick() throws ParseException {
         combobox.setValue("Sort by confirmed orders");
         updateTable();
     }
+    /** If menu ignored button has been clicked */
     @FXML
     public void onIgnoredClick() throws ParseException {
         combobox.setValue("Sort by ignored orders");
         updateTable();
     }
+    /** If menu archived button has been clicked */
     @FXML
     public void onArchivedClick() throws ParseException {
         combobox.setValue("Sort by archived orders");
         updateTable();
     }
 
+    /** Updates the table by id in tableview */
     void updateTableById(String id){
         // delete all tableview items
         for(int i = 0; i < table.getItems().size(); i++){
@@ -261,6 +287,7 @@ public class DashScreenController implements Initializable {
         getAllSearchOrders(dsh.collection, id);
     }
 
+    /** Updates the table in tableview */
     void updateTable() throws ParseException {
         filter = combobox.getSelectionModel().getSelectedItem();
         if(filter == null) filter = "Sort by newest";
@@ -290,6 +317,7 @@ public class DashScreenController implements Initializable {
         }
     }
 
+    /** Updates the menu items in our menubar */
     void updateMenuItems(){
         for(int i = 0; i < table.getItems().size(); i++){
             String status = table.getItems().get(i).getStatus();
@@ -306,7 +334,7 @@ public class DashScreenController implements Initializable {
         archivedmenu.setText("Archived ("+archived+")");
     }
 
-    // Method to fetch all documents from the mongo collection.
+    /** Gets all confirmed orders */
     public void getAllConfirmedOrders(MongoCollection<Document> col) {
         // Performing a read operation on the collection.
         FindIterable<Document> fi = col.find();
@@ -324,7 +352,7 @@ public class DashScreenController implements Initializable {
         }
     }
 
-    // Method to fetch all documents from the mongo collection.
+    /** Gets all ignored orders */
     public void getAllIgnoredOrders(MongoCollection<Document> col) {
         // Performing a read operation on the collection.
         FindIterable<Document> fi = col.find();
@@ -342,7 +370,7 @@ public class DashScreenController implements Initializable {
         }
     }
 
-    // Method to fetch all documents from the mongo collection.
+    /** Gets all archived orders */
     public void getAllArchivedOrders(MongoCollection<Document> col) {
         // Performing a read operation on the collection.
         FindIterable<Document> fi = col.find();
@@ -360,7 +388,7 @@ public class DashScreenController implements Initializable {
         }
     }
 
-    // Method to fetch all documents from the mongo collection.
+    /** Gets all pending orders */
     public void getAllPendingOrders(MongoCollection<Document> col) {
         // Performing a read operation on the collection.
         FindIterable<Document> fi = col.find();
@@ -378,7 +406,7 @@ public class DashScreenController implements Initializable {
         }
     }
 
-    // Method to fetch all documents from the mongo collection.
+    /** Gets all oldest orders */
     public void getAllOldestOrders(MongoCollection<Document> col) {
         // In order to reverse the iterate, we will append each json to an array list string and there for reverse that list string and take each json out from there
 
@@ -407,7 +435,7 @@ public class DashScreenController implements Initializable {
         }
     }
 
-    // Method to fetch all documents from the mongo collection.
+    /** Gets all newest orders */
     public void getAllNewestOrders(MongoCollection<Document> col) {
         // Performing a read operation on the collection.
         FindIterable<Document> fi = col.find();
@@ -425,7 +453,7 @@ public class DashScreenController implements Initializable {
 
     }
 
-    // Method to fetch all documents with a search id from the mongo collection.
+    /** Gets all orders from the search */
     public void getAllSearchOrders(MongoCollection<Document> col, String id) {
         // Performing a read operation on the collection.
         FindIterable<Document> fi = col.find();
@@ -444,14 +472,58 @@ public class DashScreenController implements Initializable {
         }
     }
 
+    /** If ok button has been clicked in Order Information window */
+    @FXML void onOkButtonClicked() throws IOException {
+        Stage stage = (Stage) okButton.getScene().getWindow();
+        stage.close();
+    }
 
+    /** If reply button has been clicked in Order Information window */
+    @FXML void onReplyButtonClicked(){
 
+    }
 
+    /** If print radio button has been clicked in Order Information window */
+    @FXML void onPrintClick(){
+        PDF.setSelected(false);
+        Print.setSelected(true);
+        printButton.setDisable(true);
+        availableText.setVisible(true);
 
+        // able to click print button when printer machine selected
 
+    }
+
+    /** If pdf radio button has been clicked in Order Information window */
+    @FXML void onPDFClick(){
+        PDF.setSelected(true);
+        Print.setSelected(false);
+        printButton.setDisable(false);
+        availableText.setVisible(false);
+    }
+
+    /** If print button has been clicked in Order Information window */
+    @FXML void onPrintButtonClick(){
+
+    }
+
+    /** Sends mail */
     void sendMail(String to, String from, String host){
         // user auth
 
+    }
+
+    /** Updates description text field in Order Information window */
+    void updateDescriptionField(Parent root){
+        // set content of text area
+        TextArea descriptionHeader = (TextArea) root.lookup("#descriptionField");
+        descriptionHeader.setText(table.getSelectionModel().getSelectedItem().getDescription());
+    }
+
+    /** Updates our printer table view */
+    void updatePrinterTable(){
+        DevicesModel newDevice = new DevicesModel("bruh");
+        deviceTable.getItems().add(newDevice);
     }
 
 
