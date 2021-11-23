@@ -51,14 +51,14 @@
                   <Menu mnemonicParsing="false" text="Settings">
                      <items>
                         <CheckMenuItem fx:id="colordisplayer" mnemonicParsing="false" onAction="#onColorDisplayerChange" selected="true" text="Color Displayer" />
-                        <CheckMenuItem mnemonicParsing="false" text="Dark Mode" />
+                        <CheckMenuItem fx:id="darkmode" mnemonicParsing="false" onAction="#onDarkModeChange" selected="false" text="Dark Mode" />
                      </items>
                   </Menu>
                     </menus>
                 </MenuBar>
                 <TextField fx:id="searchField" accessibleText="d" layoutX="131.0" layoutY="121.0" onKeyTyped="#onKeyTyped" promptText="BK-" />
             <Text layoutX="28.0" layoutY="138.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Order ID searcher:" />
-            <Button cache="true" layoutX="28.0" layoutY="667.0" text="VIEW ORDER" />
+            <Button fx:id="vieworder" disable="true" onAction="#onViewOrderClick" cache="true" layoutX="28.0" layoutY="667.0" text="VIEW ORDER" />
             </children></AnchorPane>
     </children>
 </VBox>

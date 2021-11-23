@@ -4,24 +4,37 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.stage.Modality;
+import javafx.stage.Popup;
+import javafx.stage.Stage;
 import org.bson.Document;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.net.URL;
 import java.text.ParseException;
 import java.util.*;
 
 import static com.mongodb.client.model.Filters.eq;
 import static java.lang.System.out;
+// File Name SendHTMLEmail.java
+
 
 public class DashScreenController implements Initializable {
     DashScreenHandler dsh = new DashScreenHandler();
+    private String namex;
     int confirmed = 0, ignored = 0, pending = 0, archived = 0;
     String filter = "";
 
@@ -39,6 +52,10 @@ public class DashScreenController implements Initializable {
     private TextField searchField;
     @FXML
     private CheckMenuItem colordisplayer;
+    @FXML
+    private CheckMenuItem darkmode;
+    @FXML
+    private Button vieworder;
 
     public TableView<OrderModel> table;
 
@@ -53,63 +70,155 @@ public class DashScreenController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        combobox.getItems().addAll(
-                "Sort by newest",
-                "Sort by oldest",
-                "Sort by pending orders",
-                "Sort by confirmed orders",
-                "Sort by archived orders",
-                "Sort by ignored orders"
-        );
+        if(combobox != null){
+            combobox.getItems().addAll(
+                    "Sort by newest",
+                    "Sort by oldest",
+                    "Sort by pending orders",
+                    "Sort by confirmed orders",
+                    "Sort by archived orders",
+                    "Sort by ignored orders"
+            );
 
-        // Update table
-        try {
-            updateTable();
-        } catch (ParseException e) {
-            e.printStackTrace();
+            // Update table
+            try {
+                updateTable();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            // add item to tableview
+            id.setCellValueFactory(new PropertyValueFactory<>("id"));
+            date.setCellValueFactory(new PropertyValueFactory<>("date"));
+            name.setCellValueFactory(new PropertyValueFactory<>("name"));
+            mail.setCellValueFactory(new PropertyValueFactory<>("mail"));
+            status.setCellValueFactory(new PropertyValueFactory<>("status"));
+            description.setCellValueFactory(new PropertyValueFactory<>("description"));
+
+            // Update menu item names
+            updateMenuItems();
+
+            table.setOnMouseClicked((
+                    MouseEvent event) -> {
+                if(event.getButton().equals(MouseButton.PRIMARY)){
+                    vieworder.setDisable(false);
+                }
+            });
+
+            table.setRowFactory(tv -> new TableRow<OrderModel>() {
+                @Override
+                public void updateItem(OrderModel item, boolean empty) {
+                    super.updateItem(item, empty) ;
+                    if(colordisplayer.isSelected()) {
+                        if (item == null) {
+                            setStyle("");
+                        } else if (item.getStatus().equals("CONFIRMED")) {
+                            setStyle("-fx-background-color: green;");
+                        } else if (item.getStatus().equals("IGNORED")){
+                            setStyle("-fx-background-color: tomato;");
+                        } else if(item.getStatus().equals("ARCHIVED")){
+                            setStyle("-fx-background-color: grey;");
+                        } else if(item.getStatus().equals("PENDING")){
+                            setStyle("-fx-background-color: lightgrey;");
+                        } else {
+                            setStyle("");
+                        }
+                    } else {
+                        setStyle("");
+                    }
+                }
+            });
         }
 
-        // add item to tableview
-        id.setCellValueFactory(new PropertyValueFactory<>("id"));
-        date.setCellValueFactory(new PropertyValueFactory<>("date"));
-        name.setCellValueFactory(new PropertyValueFactory<>("name"));
-        mail.setCellValueFactory(new PropertyValueFactory<>("mail"));
-        status.setCellValueFactory(new PropertyValueFactory<>("status"));
-        description.setCellValueFactory(new PropertyValueFactory<>("description"));
+    }
 
-        // Update menu item names
-        updateMenuItems();
+    @FXML void onViewOrderClick() throws IOException {
+        Stage popupwindow= new Stage();
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("OrderPopupScreen.fxml")));
+        getSelectedItemData(dsh.collection, table.getSelectionModel().getSelectedItem().getName(), root);
+        Scene popup = new Scene(root);
+        popupwindow.setResizable(false);
+        popupwindow.setTitle("Order Information Window (" + table.getSelectionModel().getSelectedItem().getId() + ")");
+        popupwindow.setScene(popup);
+        popupwindow.showAndWait();
 
-        table.setOnMouseClicked((
-                MouseEvent event) -> {
-            if(event.getButton().equals(MouseButton.PRIMARY)){
-                out.println(table.getSelectionModel().getSelectedItem().getName());
+    }
+
+    // Method to fetch all documents from the mongo collection.
+    public void getSelectedItemData(MongoCollection<Document> col, String user, Parent root) {
+        FindIterable<Document> fi = col.find();
+        MongoCursor<Document> cursor = fi.iterator();
+        try {
+            while(cursor.hasNext()) {
+                JSONObject obj = new JSONObject(cursor.next().toJson());
+                if(obj.getString("name").equals(user)){
+                    Label nameHeader = (Label) root.lookup("#nameHeader");
+                    nameHeader.setText(obj.getString("name"));
+
+                    Label orderHeader = (Label) root.lookup("#orderHeader");
+                    orderHeader.setText("Order #: BK-" + obj.getString("id"));
+
+                    Label dateText = (Label) root.lookup("#dateText");
+                    dateText.setText(obj.getString("date"));
+
+                    Label numberText = (Label) root.lookup("#numberText");
+                    numberText.setText(obj.getString("number"));
+
+                    Label mailText = (Label) root.lookup("#mailText");
+                    mailText.setText(obj.getString("mail"));
+
+                    Label nameText = (Label) root.lookup("#nameText");
+                    nameText.setText(obj.getString("name"));
+
+                    Label orderText = (Label) root.lookup("#orderText");
+                    orderText.setText("Order #: " + obj.getString("id"));
+
+                    Label statusText = (Label) root.lookup("#statusText");
+                    statusText.setText("Status: " + obj.getString("status"));
+
+                    Label descriptionHeader = (Label) root.lookup("#descriptionHeader");
+                    descriptionHeader.setText("Order description (BK-" + obj.getString("id") + ")");
+                }
             }
-        });
+        } finally {
+            cursor.close();
+        }
+    }
+
+    @FXML void onDarkModeChange(){
+        //darkmode
+        Scene scene = (Scene) table.getScene();
+        if(darkmode.isSelected()){
+            scene.getRoot().setStyle("-fx-base:black");
+        } else {
+            scene.getRoot().setStyle("");
+        }
+    }
+
+    @FXML void onColorDisplayerChange(){
         table.setRowFactory(tv -> new TableRow<OrderModel>() {
             @Override
             public void updateItem(OrderModel item, boolean empty) {
                 super.updateItem(item, empty) ;
-                if (item == null) {
-                    setStyle("");
-                } else if (item.getStatus().equals("CONFIRMED")) {
-                    setStyle("-fx-background-color: green;");
-                } else if (item.getStatus().equals("IGNORED")){
-                    setStyle("-fx-background-color: tomato;");
-                } else if(item.getStatus().equals("ARCHIVED")){
-                    setStyle("-fx-background-color: grey;");
-                } else if(item.getStatus().equals("PENDING")){
-                    setStyle("-fx-background-color: lightgrey;");
+                if(colordisplayer.isSelected()) {
+                    if (item == null) {
+                        setStyle("");
+                    } else if (item.getStatus().equals("CONFIRMED")) {
+                        setStyle("-fx-background-color: green;");
+                    } else if (item.getStatus().equals("IGNORED")){
+                        setStyle("-fx-background-color: tomato;");
+                    } else if(item.getStatus().equals("ARCHIVED")){
+                        setStyle("-fx-background-color: grey;");
+                    } else if(item.getStatus().equals("PENDING")){
+                        setStyle("-fx-background-color: lightgrey;");
+                    } else {
+                        setStyle("");
+                    }
                 } else {
                     setStyle("");
                 }
             }
         });
-
-    }
-
-    @FXML void onColorDisplayerChange(){
-
     }
 
     @FXML
@@ -333,6 +442,16 @@ public class DashScreenController implements Initializable {
         } finally {
             cursor.close();
         }
+    }
+
+
+
+
+
+
+    void sendMail(String to, String from, String host){
+        // user auth
+
     }
 
 
