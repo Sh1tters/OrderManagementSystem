@@ -11,7 +11,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane prefHeight="537.0" prefWidth="653.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.friertech.ordersystemproject.DashScreenController">
+<AnchorPane prefHeight="537.0" prefWidth="653.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.friertech.ordersystemproject.OrderPopupScreenController">
    <children>
       <Button fx:id="okButton" defaultButton="true" layoutX="580.0" layoutY="496.0" mnemonicParsing="false" onAction="#onOkButtonClicked" prefHeight="26.0" prefWidth="52.0" text="OK" />
       <Button fx:id="replyButton" layoutX="495.0" layoutY="496.0" mnemonicParsing="false" onAction="#onReplyButtonClicked" prefHeight="26.0" prefWidth="69.0" text="REPLY" />
@@ -33,7 +33,7 @@
             <Font size="7.0" />
          </font>
       </Text>
-      <Label fx:id="nameText" layoutX="12.0" layoutY="132.0" text="d" />
+      <Label fx:id="nameText" layoutX="13.0" layoutY="132.0" text="d" />
       <Label fx:id="orderText" layoutX="13.0" layoutY="114.0" text="d" />
       <Label fx:id="dateText" layoutX="13.0" layoutY="96.0" text="d" />
       <Label fx:id="mailText" layoutX="13.0" layoutY="150.0" text="d" />
@@ -46,7 +46,7 @@
       <Label fx:id="nameHeader" layoutX="10.0" layoutY="9.0" text="d">
          <font>
             <Font name="System Bold" size="31.0" />
-         </font>
+         </font>i
       </Label>
       <Label fx:id="statusText" layoutX="18.0" layoutY="500.0" text="Status" />
       <Label fx:id="descriptionHeader" layoutX="302.0" layoutY="57.0" prefHeight="18.0" prefWidth="180.0" text="Order description (BK-0)">
@@ -55,9 +55,9 @@
          </font>
       </Label>
       <TextArea fx:id="descriptionField" editable="false" layoutX="302.0" layoutY="85.0" prefHeight="385.0" prefWidth="328.0" wrapText="true" />
-      <TableView fx:id="devicesList" layoutX="33.0" layoutY="339.0" prefHeight="106.0" prefWidth="163.0">
+      <TableView id="deviceTable" fx:id="deviceTable" layoutX="33.0" layoutY="339.0" prefHeight="106.0" prefWidth="163.0">
         <columns>
-          <TableColumn fx:id="printers" editable="false" prefWidth="161.0" text="Installed Printers" />
+          <TableColumn id="printers" fx:id="printers" editable="false" prefWidth="161.0" text="Installed Printers" />
         </columns>
       </TableView>
    </children>

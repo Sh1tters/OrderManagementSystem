@@ -21,7 +21,7 @@
             <children>
                 <TableView id="table" fx:id="table" layoutX="28.0" layoutY="164.0" prefHeight="494.0" prefWidth="944.0">
                     <columns>
-                        <TableColumn fx:id="id" editable="false" prefWidth="105.0" sortable="false" text="Order #" />
+                        <TableColumn id="id" fx:id="id" editable="false" prefWidth="105.0" sortable="false" text="Order #" />
                         <TableColumn id="date" fx:id="date" editable="false" prefWidth="105.0" sortable="false" text="Date" />
                         <TableColumn id="name" fx:id="name" editable="false" prefWidth="105.0" sortable="false" text="Customer Name" />
                         <TableColumn id="mail" fx:id="mail" editable="false" prefWidth="105.0" sortable="false" text="Customer Mail" />

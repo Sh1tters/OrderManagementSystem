@@ -13,6 +13,8 @@ module com.friertech.ordersystemproject {
     requires org.mongodb.driver.sync.client;
     requires org.mongodb.bson;
     requires json;
+    requires java.desktop;
+    requires itextpdf;
 
     opens com.friertech.ordersystemproject to javafx.fxml;
     exports com.friertech.ordersystemproject;

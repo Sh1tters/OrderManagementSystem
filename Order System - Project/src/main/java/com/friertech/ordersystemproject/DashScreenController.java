@@ -50,24 +50,7 @@ public class DashScreenController implements Initializable {
     private CheckMenuItem darkmode;
     @FXML
     private Button vieworder;
-    @FXML
-    private Button okButton;
-    @FXML
-    private Button replyButton;
-    @FXML
-    private RadioButton PDF;
-    @FXML
-    private RadioButton Print;
-    @FXML
-    private Button printButton;
-    @FXML
-    private Text availableText;
-    @FXML
-    private TableView deviceList;
 
-
-    public TableView<DevicesModel> deviceTable;
-    public TableColumn<DevicesModel, Object> printers;
 
     public TableView<OrderModel> table;
     public TableColumn<OrderModel, Object> id;
@@ -76,7 +59,6 @@ public class DashScreenController implements Initializable {
     public TableColumn<OrderModel, Object> mail;
     public TableColumn<OrderModel, Object> description;
     public TableColumn<OrderModel, Object> status;
-
 
 
     @Override
@@ -105,7 +87,6 @@ public class DashScreenController implements Initializable {
             mail.setCellValueFactory(new PropertyValueFactory<>("mail"));
             status.setCellValueFactory(new PropertyValueFactory<>("status"));
             description.setCellValueFactory(new PropertyValueFactory<>("description"));
-
 
             // Update menu item names
             updateMenuItems();
@@ -146,12 +127,11 @@ public class DashScreenController implements Initializable {
 
     /** If view order button has been clicked */
     @FXML void onViewOrderClick() throws IOException {
+        OrderPopupScreenController opsc = new OrderPopupScreenController();
         Stage popupwindow= new Stage();
         Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("OrderPopupScreen.fxml")));
-        getSelectedItemData(dsh.collection, table.getSelectionModel().getSelectedItem().getName(), root);
+        opsc.getSelectedItemData(dsh.collection, table.getSelectionModel().getSelectedItem().getName(), root);
         //update our printer tableview
-        printers.setCellValueFactory(new PropertyValueFactory<>("printers"));
-        updatePrinterTable();
         updateDescriptionField(root);
         Scene popup = new Scene(root);
         popupwindow.setResizable(false);
@@ -161,45 +141,11 @@ public class DashScreenController implements Initializable {
 
     }
 
-    /** Gets the current selected item data and sets the Order Information text to the right data */
-    public void getSelectedItemData(MongoCollection<Document> col, String user, Parent root) {
-        FindIterable<Document> fi = col.find();
-        MongoCursor<Document> cursor = fi.iterator();
-        try {
-            while(cursor.hasNext()) {
-                JSONObject obj = new JSONObject(cursor.next().toJson());
-                if(obj.getString("name").equals(user)){
-                    Label nameHeader = (Label) root.lookup("#nameHeader");
-                    nameHeader.setText(obj.getString("name"));
-
-                    Label orderHeader = (Label) root.lookup("#orderHeader");
-                    orderHeader.setText("Order #: BK-" + obj.getString("id"));
-
-                    Label dateText = (Label) root.lookup("#dateText");
-                    dateText.setText(obj.getString("date"));
-
-                    Label numberText = (Label) root.lookup("#numberText");
-                    numberText.setText(obj.getString("number"));
-
-                    Label mailText = (Label) root.lookup("#mailText");
-                    mailText.setText(obj.getString("mail"));
-
-                    Label nameText = (Label) root.lookup("#nameText");
-                    nameText.setText(obj.getString("name"));
-
-                    Label orderText = (Label) root.lookup("#orderText");
-                    orderText.setText("Order #: BK-" + obj.getString("id"));
-
-                    Label statusText = (Label) root.lookup("#statusText");
-                    statusText.setText("Status: " + obj.getString("status"));
-
-                    Label descriptionHeader = (Label) root.lookup("#descriptionHeader");
-                    descriptionHeader.setText("Order description (BK-" + obj.getString("id") + ")");
-                }
-            }
-        } finally {
-            cursor.close();
-        }
+    /** Updates description text field in Order Information window */
+    void updateDescriptionField(Parent root){
+        // set content of text area
+        TextArea descriptionHeader = (TextArea) root.lookup("#descriptionField");
+        descriptionHeader.setText(table.getSelectionModel().getSelectedItem().getDescription());
     }
 
     /** Changes to darkmode/lightmode */
@@ -470,60 +416,6 @@ public class DashScreenController implements Initializable {
         } finally {
             cursor.close();
         }
-    }
-
-    /** If ok button has been clicked in Order Information window */
-    @FXML void onOkButtonClicked() throws IOException {
-        Stage stage = (Stage) okButton.getScene().getWindow();
-        stage.close();
-    }
-
-    /** If reply button has been clicked in Order Information window */
-    @FXML void onReplyButtonClicked(){
-
-    }
-
-    /** If print radio button has been clicked in Order Information window */
-    @FXML void onPrintClick(){
-        PDF.setSelected(false);
-        Print.setSelected(true);
-        printButton.setDisable(true);
-        availableText.setVisible(true);
-
-        // able to click print button when printer machine selected
-
-    }
-
-    /** If pdf radio button has been clicked in Order Information window */
-    @FXML void onPDFClick(){
-        PDF.setSelected(true);
-        Print.setSelected(false);
-        printButton.setDisable(false);
-        availableText.setVisible(false);
-    }
-
-    /** If print button has been clicked in Order Information window */
-    @FXML void onPrintButtonClick(){
-
-    }
-
-    /** Sends mail */
-    void sendMail(String to, String from, String host){
-        // user auth
-
-    }
-
-    /** Updates description text field in Order Information window */
-    void updateDescriptionField(Parent root){
-        // set content of text area
-        TextArea descriptionHeader = (TextArea) root.lookup("#descriptionField");
-        descriptionHeader.setText(table.getSelectionModel().getSelectedItem().getDescription());
-    }
-
-    /** Updates our printer table view */
-    void updatePrinterTable(){
-        DevicesModel newDevice = new DevicesModel("bruh");
-        deviceTable.getItems().add(newDevice);
     }
 
 

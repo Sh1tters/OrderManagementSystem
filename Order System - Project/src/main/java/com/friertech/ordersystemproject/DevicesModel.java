@@ -1,19 +1,18 @@
 package com.friertech.ordersystemproject;
 
 public class DevicesModel {
-    private String printername;
-    private String orentations;
+    private String printers;
 
-    public DevicesModel(String printername) {
-        this.printername = printername;
+    public DevicesModel(String printers) {
+        this.printers = printers;
     }
 
-    public String getPrintername() {
-        return printername;
+    public String getPrinters() {
+        return printers;
     }
 
-    public void setPrintername(String printername) {
-        this.printername = printername;
+    public void setPrinters(String printers) {
+        this.printers = printers;
     }
 
 }

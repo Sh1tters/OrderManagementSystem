@@ -13,14 +13,13 @@
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-classic:1.2.3" level="project" />
     <orderEntry type="library" name="Maven: ch.qos.logback:logback-core:1.2.3" level="project" />
     <orderEntry type="library" name="Maven: org.slf4j:slf4j-api:1.7.25" level="project" />
+    <orderEntry type="library" name="Maven: com.itextpdf:itextpdf:5.5.13" level="project" />
     <orderEntry type="library" name="Maven: org.json:json:20180130" level="project" />
     <orderEntry type="library" name="Maven: com.google.code.gson:gson:2.8.6" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-sync:4.3.1" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:bson:4.3.1" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:16" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-controls:win:16" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:16" level="project" />
-    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:win:16" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-fxml:16" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-fxml:win:16" level="project" />
     <orderEntry type="library" name="Maven: org.openjfx:javafx-web:16" level="project" />
@@ -42,5 +41,7 @@
     <orderEntry type="library" scope="TEST" name="Maven: org.junit.jupiter:junit-jupiter-engine:5.7.1" level="project" />
     <orderEntry type="library" scope="TEST" name="Maven: org.junit.platform:junit-platform-engine:1.7.1" level="project" />
     <orderEntry type="library" name="Maven: org.mongodb:mongodb-driver-core:4.3.1" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:16" level="project" />
+    <orderEntry type="library" name="Maven: org.openjfx:javafx-graphics:win:16" level="project" />
   </component>
 </module>
