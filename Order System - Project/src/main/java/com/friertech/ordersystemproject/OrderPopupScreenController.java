@@ -7,8 +7,10 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.text.Text;
@@ -24,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 
@@ -108,8 +111,18 @@ public class OrderPopupScreenController implements Initializable {
     }
 
     /** If reply button has been clicked in Order Information window */
-    @FXML void onReplyButtonClicked(){
+    @FXML void onReplyButtonClicked() throws IOException {
+     //   DashScreenController dsh = new DashScreenController();
+      //  ReplyPopupScreenController rpsc = new ReplyPopupScreenController();
+       // rpsc.updateFields(dsh.dsh.collection, user);
+        Stage popupwindow= new Stage();
+        Parent root = FXMLLoader.load(Objects.requireNonNull(getClass().getResource("ReplyPopupScreen.fxml")));
 
+        Scene popup = new Scene(root);
+        popupwindow.setResizable(false);
+        popupwindow.setTitle("Mail Reply Window");
+        popupwindow.setScene(popup);
+        popupwindow.showAndWait();
     }
 
     /** If print radio button has been clicked in Order Information window */
