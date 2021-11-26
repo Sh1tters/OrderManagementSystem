@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Text?>
 
-<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.friertech.ordersystemproject.DashScreenController">
+<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.friertech.ordersystemproject.DashScreenController">
     <children>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="750.0" prefWidth="1000.0">
             <children>
@@ -58,7 +58,10 @@
                 </MenuBar>
                 <TextField fx:id="searchField" accessibleText="d" layoutX="131.0" layoutY="121.0" onKeyTyped="#onKeyTyped" promptText="BK-" />
             <Text layoutX="28.0" layoutY="138.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Order ID searcher:" />
-            <Button fx:id="vieworder" disable="true" onAction="#onViewOrderClick" cache="true" layoutX="28.0" layoutY="667.0" text="VIEW ORDER" />
+            <Button fx:id="vieworder" cache="true" disable="true" layoutX="28.0" layoutY="667.0" onAction="#onViewOrderClick" text="VIEW ORDER" />
+            <Button fx:id="confirm" cache="true" disable="true" layoutX="903.0" layoutY="667.0" onAction="#onConfirmClicked" text="CONFIRM" />
+            <Button fx:id="archive" cache="true" disable="true" layoutX="905.0" layoutY="700.0" onAction="#onArchiveClicked" text="ARCHIVE" />
+            <Button fx:id="ignore" cache="true" disable="true" layoutX="834.0" layoutY="667.0" onAction="#onIgnoreClicked" text="IGNORE" />
             </children></AnchorPane>
     </children>
 </VBox>

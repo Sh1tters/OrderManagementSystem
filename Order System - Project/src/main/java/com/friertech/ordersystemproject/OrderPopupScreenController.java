@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import org.bson.Document;
 import org.json.JSONObject;
 
+import javax.print.PrintException;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import java.io.FileNotFoundException;
@@ -44,6 +45,10 @@ public class OrderPopupScreenController implements Initializable {
     @FXML
     private Text availableText;
 
+    public static String user;
+    public static MongoCollection<Document> col;
+    public static Parent root;
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         printers.setCellValueFactory(new PropertyValueFactory<>("printers"));
@@ -55,6 +60,9 @@ public class OrderPopupScreenController implements Initializable {
     public void getSelectedItemData(MongoCollection<Document> col, String user, Parent root) {
         FindIterable<Document> fi = col.find();
         MongoCursor<Document> cursor = fi.iterator();
+        this.user = user;
+        this.col = col;
+        this.root = root;
         try {
             while(cursor.hasNext()) {
                 JSONObject obj = new JSONObject(cursor.next().toJson());
@@ -109,7 +117,7 @@ public class OrderPopupScreenController implements Initializable {
     void onPrintClick(){
         PDF.setSelected(false);
         Print.setSelected(true);
-        printButton.setDisable(true);
+        printButton.setDisable(false);
         availableText.setVisible(true);
         deviceTable.setDisable(false);
 
@@ -127,10 +135,16 @@ public class OrderPopupScreenController implements Initializable {
     }
 
     /** If print button has been clicked in Order Information window */
-    @FXML void onPrintButtonClick() throws BadElementException, IOException {
-        if(PDF.isSelected()){
+    @FXML void onPrintButtonClick() throws BadElementException, IOException, PrintException {
+        if(PDF.isSelected()) {
+                PDFController pc = new PDFController();
+                pc.createPdfFile(col, user, root);
+
+        } else if(Print.isSelected()){
             PDFController pc = new PDFController();
-            pc.createPdfFile();
+            pc.createPdfFile(col, user, root);
+            PrintingService ps = new PrintingService();
+            ps.main(col, user, root);
         }
     }
 

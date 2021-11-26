@@ -1,8 +1,11 @@
 package com.friertech.ordersystemproject;
 
+import com.itextpdf.text.BadElementException;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -31,6 +34,7 @@ public class DashScreenController implements Initializable {
     DashScreenHandler dsh = new DashScreenHandler();
     int confirmed = 0, ignored = 0, pending = 0, archived = 0;
     String filter = "";
+    String currentUser;
 
     @FXML
     private ComboBox<String> combobox;
@@ -50,6 +54,12 @@ public class DashScreenController implements Initializable {
     private CheckMenuItem darkmode;
     @FXML
     private Button vieworder;
+    @FXML
+    private Button ignore;
+    @FXML
+    private Button confirm;
+    @FXML
+    private Button archive;
 
 
     public TableView<OrderModel> table;
@@ -95,6 +105,9 @@ public class DashScreenController implements Initializable {
                     MouseEvent event) -> {
                 if(event.getButton().equals(MouseButton.PRIMARY)){
                     vieworder.setDisable(false);
+                    ignore.setDisable(false);
+                    confirm.setDisable(false);
+                    archive.setDisable(false);
                 }
             });
 
@@ -412,6 +425,48 @@ public class DashScreenController implements Initializable {
                     OrderModel newOrder = new OrderModel(obj.getString("name"), "BK-"+obj.getString("id"), obj.getString("date"), obj.getString("mail"), obj.getString("status"), obj.getString("description"));
                     table.getItems().add(newOrder);
                 }
+            }
+        } finally {
+            cursor.close();
+        }
+    }
+
+
+
+    /** On ignore button click event */
+    @FXML
+    public void onIgnoreClicked() throws ParseException {
+        updateOrderStatus(dsh.collection,"IGNORED", table.getSelectionModel().getSelectedItem().getName());
+        updateTable();
+    }
+
+    /** On confirm button click event */
+    @FXML
+    public void onConfirmClicked() throws ParseException {
+        updateOrderStatus(dsh.collection,"CONFIRMED", table.getSelectionModel().getSelectedItem().getName());
+        updateTable();
+    }
+
+    /** On archive button click event */
+    @FXML
+    public void onArchiveClicked() throws ParseException {
+        updateOrderStatus(dsh.collection,"ARCHIVED", table.getSelectionModel().getSelectedItem().getName());
+        updateTable();
+    }
+
+
+    /** Updates status of order */
+    public void updateOrderStatus(MongoCollection<Document> col, String status, String user){
+        // Performing a read operation on the collection.
+        FindIterable<Document> fi = col.find();
+        MongoCursor<Document> cursor = fi.iterator();
+        try {
+            while(cursor.hasNext()) {
+                JSONObject obj = new JSONObject(cursor.next().toJson());
+                if(obj.getString("name").equals(user)){
+                    col.updateOne(Filters.eq("name", user), Updates.set("status", status));
+                }
+
             }
         } finally {
             cursor.close();
